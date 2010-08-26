@@ -1,12 +1,13 @@
 // /home/www/gmxhome/README.asciidoc
-// $HG_Id: README.asciidoc r:77 2010-08-26 b-abstract-tool ino-news $
+// $HG_Id: README.asciidoc r:78 2010-08-26 b-abstract-tool ino-news $
 
 m4-on-markup
 ============
 :Author:    clemens fischer
-:Date:      _date: 20100826-1936_
+:Date:      _date: 20100826-1953_
 
-.Summary
+== Summary
+
 There is still no consensus on the most flexible and most simple general
 purpose markup.  Maybe this is not possible for applications as diverse
 as web sites, program documentation, wikis and so on, but learning a
@@ -16,6 +17,10 @@ to his project. "m4-on-markup" is supposed to let people write their
 document in a canonic form and try a tool from some selection to see
 what it turns out.
 
-The sources to my
-http://spotteswoode.dnsalias.org:8080/website/[homepage] do not describe
+The http://spotteswoode.dnsalias.org:8080/website/[sources] to my
+http://ino-waiting.gmxhome.de/[homepage] do not describe
 this project well, but should serve as examples.
+
+[NOTE]
+The sources do not reflect the looks of my homepage while I mess with
+them!
