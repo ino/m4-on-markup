@@ -1,0 +1,92 @@
+# /home/www/gmxhome/Makefile-html _date: 20100825-2148_
+# vim: set filetype=make ts=4:
+# -*- mode: make; -*-
+# $HG_Id: Makefile-html r:75 2010-08-25 b-abstract-tool ino-news $
+# see <url:man:1 make>
+# info make
+
+transformcmd = asciidoc
+transformflags = -v ${asciidoc_quirks} -o - -
+#asciidoc_quirks = --attribute 'quirks!'
+#asciidoc_quirks = -a badges -a 'quirks!'
+asciidoc_quirks = -a stylesheet="${style}"
+preproc = m4
+preproc_script = preproc.m4
+#preproc_flags = -P
+preproc_flags = -D builder='{asciidoc}'
+preproc_flags += -D std_fg='{white}'
+preproc_flags += -D std_bg='{blue}'
+preproc_flags += -D std_standout_fg='{red}'
+preproc_flags += -D std_sz='{1.2}'
+# NB: the trailing slash is mandatory!
+#preproc_flags += -D alt_download_loc='http://spotteswoode.dnsalias.org/'
+preproc_flags += -D alt_download_loc='http://spotteswoode.dnsalias.org:8080/'
+preproc_flags += -D std_email='{<ino-news@spotteswoode.dnsalias.org>}'
+preproc_flags += -D std_email_txt='{clemens fischer, ino-news AT spotteswoode DOT dnsalias DOT org}'
+preproc_flags += ${preproc_script}
+
+# /etc/asciidoc/stylesheets/xhtml11-quirks.css
+# /etc/asciidoc/stylesheets/xhtml11.css
+#style = xhtml11.css
+style = $(shell pwd)/xhtml11.css
+
+site_list = gmxhome freenet
+
+TARGETS = index.html
+TARGETS += i.html
+TARGETS += ipv6.html
+TARGETS += wunschliste.html
+TARGETS += softwares.html
+TARGETS += udev.html
+internalincs = www-footer.pm4 www-sidebar.pm4
+internaldeps = ${preproc_script} Makefile-html
+
+all: ${TARGETS}
+
+.PHONY: help
+help:
+	@echo 'use make <target>, target E {all, show-update, do-update, clean}'
+	$(error 'use make <target>, target E {all, show-update, do-update, clean}')
+
+.PHONY: sitename_check
+sitename_check:
+ifeq ($(strip $(sitename)),)
+	$(error use make 'sitename=<site>|help', site E ${site_list})
+endif
+
+.PHONY: show-update
+show-update: sitename_check
+	-sitecopy -l ${sitename}
+
+.PHONY: do-update
+do-update: sitename_check all
+	sitecopy -u ${sitename}
+
+.PHONY: clean
+clean:
+	rm -f ${TARGETS} ${internalincs}
+
+.SUFFIXES: .pm4 .html .txt
+
+# don't necessarily remove these intermediate includes. using
+# ".PRECIOUS" would let them (possibly broken!) survive errors and
+# interrupts as well, which is bad.
+.SECONDARY: ${internalincs}
+
+%.pm4 : %.txt
+	${preproc} ${preproc_flags} $< > $@
+
+# ${style} may be used by the ${transformcmd}, making it a dependency
+%.html : www-%.txt ${internalincs} ${internaldeps} ${style}
+	${preproc} ${preproc_flags} $< | \
+	tee $*.pm4 | \
+	${transformcmd} ${transformflags} > $@
+
+# define TRANS
+# ${1}_src= ${1:%.html=www-%.txt}
+# $1: $${${1}_src} ${internalincs} ${internaldeps}
+# 	${preproc} ${preproc_flags} $${${1}_src} | \
+# 	${transformcmd} ${transformflags} > $1
+# endef
+#
+# $(foreach T, ${TARGETS}, $(eval $(call TRANS,$(strip ${T}))))
