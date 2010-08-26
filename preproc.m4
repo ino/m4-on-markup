@@ -1,7 +1,7 @@
-dnl /home/www/gmxhome/preproc.m4 _date: 20100825-2138_
+dnl /home/www/gmxhome/preproc.m4 _date: 20100826-2356_
 dnl vim: set filetype=m4 ts=4:
 dnl -*- mode: m4; -*-
-dnl $HG_Id: preproc.m4 r:75 2010-08-25 b-abstract-tool ino-news $
+dnl $HG_Id: preproc.m4 r:79 2010-08-27 b-abstract-tool ino-news $
 divert(-1)dnl
 changequote(`{', `}')
 changecom({###},)
@@ -26,6 +26,12 @@ __def({__eval}, __defn({eval}))
 undefine({eval})
 __def({__len}, __defn({len}))
 undefine({len})
+__def({__pushdef}, __defn({pushdef}))
+undefine({pushdef})
+__def({__popdef}, __defn({popdef}))
+undefine({popdef})
+__def({__incr}, __defn({incr}))
+undefine({incr})
 __def({__errprint}, __defn({errprint}))
 undefine({errprint})
 __def({__exit}, __defn({m4exit}))
@@ -56,6 +62,17 @@ __undivert({9})__ign
 __switch(__sysval, {0}, {}, {__error(__sysval{}{: $1})})})
 ### undefine undefine to disable accidental undefine
 undefine({undefine})
+###
+### generate something {howmany} times
+### __repl_c_({character-or-something}, {howmany})
+###
+__def({___repl_c_}, {__ign
+__switch({$3}, {$2}, {}, {__ign
+$1{}$0($1, $2, __incr($3))})})
+###
+__def({__repl_c_}, {__ign
+___repl_c_($1, $2, {0})__ign
+})
 ###
 ### __def({_utter_truth_}, {__eval(5>0)})
 ### __def({_param_given_}, {__eval(__len({$1}) > 0)})
@@ -110,7 +127,7 @@ __def({_standout_},
 ###
 __def({_doc_header_}, {__ign
 $1
-{==================================================================}
+__repl_c_({=}, __len({$1}))
 {:Author:} $2
 {:Date:} __sys({date '+%Y-%m-%d %H:%M'})
 })
@@ -120,24 +137,30 @@ $1
 __def({_comment_}, {})
 ###
 ### _sidebar_({sidebar text})
+### __def({__ruler__sidebar__}, __repl_c_({*}, __len({$1})))__ign
 ###
 __def({_sidebar_}, {__ign
-{*************************}
-$1
-{*************************}
+__pushdef({__ruler__text__}, $1)__ign
+__pushdef({__ruler__sidebar__}, {__repl_c_({*}, __len(__ruler__text__))})__ign
+__ruler__sidebar__
+__ruler__text__
+__ruler__sidebar__
+__popdef({__ruler__text__}, {__ruler__sidebar__})__ign
 })
 ###
 ### _note_({text})
 ###
 __def({_note_}, {__ign
 {[NOTE]}
-$1})
+$1
+})
 ###
 ### _tip_({text})
 ###
 __def({_tip_}, {__ign
 {[TIP]}
-$1})
+$1
+})
 ###
 ### _header_2_({text})
 ###
@@ -153,34 +176,28 @@ __def({_header_3_}, {__ign
 ###
 ### _llink_({link_target}, {caption})
 ###
-__def({_llink_}, {__ign
-{link:}$1{[}$2{]}})
+__def({_llink_}, {{link:}$1{[}$2{]}})
 ###
 ### _include_({file})
 ###
-__def({_include_}, {__ign
-__include({$1})})
+__def({_include_}, {__include({$1})})
 ###
 ### _para_title_({title})
 ###
-__def({_para_title_}, {__ign
-.{}$1})
+__def({_para_title_}, {.{}$1})
 ###
 ### _anchor_({anchor})
 ###
-__def({_anchor_}, {__ign
-{[[}$1{]]}})
+__def({_anchor_}, {{[[}$1{]]}})
 ###
 ### "anchor reference"
 ### _anchor_r_({anchor}, {tag})
 ###
-__def({_anchor_r_}, {__ign
-{<<}$1{,}$2{>>}})
+__def({_anchor_r_}, {{<<}$1{,}$2{>>}})
 ###
 ### _ul_e_({unnumbered list item})
 ###
-__def({_ul_e_}, {__ign
-{-} $1})
+__def({_ul_e_}, {{-} $1})
 ###
 }, __ign
 ###
