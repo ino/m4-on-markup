@@ -1,21 +1,42 @@
 // /home/www/gmxhome/README.asciidoc
-// $HG_Id: README.asciidoc r:78 2010-08-26 b-abstract-tool ino-news $
+// $HG_Id: README.asciidoc r:81 2010-08-28 b-abstract-tool ino-news $
 
 m4-on-markup
 ============
 :Author:    clemens fischer
-:Date:      _date: 20100826-1953_
+:Date:      _date: 20100828-2212_
 
 == Summary
 
 There is still no consensus on the most flexible and most simple general
 purpose markup.  Maybe this is not possible for applications as diverse
-as web sites, program documentation, wikis and so on, but learning a
-new tool after growing dissatisfied with the one currently used is a
-desparate move for someone who just wants to add explanatory words
-to his project. "m4-on-markup" is supposed to let people write their
+as web sites, program documentation, wikis and so on, but learning a new
+tool after growing dissatisfied with the one currently used is
+a desparate move for someone who just wants to add explanatory words to
+his project. "m4-on-markup" is supposed to let people write their
 document in a canonic form and try a tool from some selection to see
-what it turns out.
+what it turns out.  This is also handy if certain features are missing
+from the build tool and would even allow to transform input text into
+styled HTML directly.  This latter option is _not_ the aim of
+"m4-on-markup", but may be unavoidable in certain situations and
+a nice-to-have.
+
+== Features and Rationale
+
+For documentation and homesite building I have tried, in this order:
+raw HTML, the python "Docutils" and "Asciidoc".  Neither did exactly
+what I wanted, did not work as advertised or needed workarounds.  The
+latter were hard to discover, so eventually the well known unix macro
+preprocessor "m4" was used to massage the input markup into something
+either digestible by the build tool or make it usable in the first
+place.
+
+The file "preproc.m4" defines canonical markup conditioned on the
+setting of the build-time variable "builder".  Currently it can take on
+the values "asciidoc", "docutils", "txt2tags" and in the future
+"textile" as well.  Only "asciidoc" is implemented at this time, but
+I have working "docutils" aka. reST templates in a private repo, so that
+should not take much time.
 
 The http://spotteswoode.dnsalias.org:8080/website/[sources] to my
 http://ino-waiting.gmxhome.de/[homepage] do not describe
@@ -24,3 +45,38 @@ this project well, but should serve as examples.
 [NOTE]
 The sources do not reflect the looks of my homepage while I mess with
 them!
+
+== Implemented canonical markup
+
+The following configuration variables are defined and used in macros:
+
+- builder, default: asciidoc
+- std_fg, default: white
+- std_bg, default: blue
+- std_standout_fg, default: red
+- std_sz, default: +1.5
+- alt_download_loc, default: your customization
+- std_email_txt, default: your customization
+
+The following markup macros can be used:
+
+- \_def_w_default(config-var, internal-config-var, default)
+- \_standout_fg_bg_sz_(forground, background, size)
+- \_standout_fg_bg_(forground, background)
+- \_standout_fg_(forground)
+- \_standout_sz_(size)
+- \_standout_(some text)
+- \_doc_header_(title, author)
+- \_comment_(any text)
+- \_sidebar_(sidebar text)
+- \_note_(any text)
+- \_tip_(any text)
+- \_header_2_(any text)
+- \_header_3_(any text)
+- \_llink_(local link target, caption text)
+- \_include_(filename)
+- \_para_title_(paragraph title)
+- \_anchor_(fragment id)
+- \_anchor_r_(fragment id)
+- \_ul_e_(unordered lit item)
+
