@@ -1,4 +1,4 @@
-# /home/www/gmxhome/Makefile-html _date: 20100825-2148_
+# /home/www/gmxhome/Makefile-html _date: 20100902-2051_
 # vim: set filetype=make ts=4:
 # -*- mode: make; -*-
 # $HG_Id: Makefile-html r:75 2010-08-25 b-abstract-tool ino-news $
@@ -6,7 +6,9 @@
 # info make
 
 transformcmd = asciidoc
-transformflags = -v ${asciidoc_quirks} -o - -
+transformflags = -v ${asciidoc_quirks}
+#transformflags += --unsafe
+transformflags += -o - -
 #asciidoc_quirks = --attribute 'quirks!'
 #asciidoc_quirks = -a badges -a 'quirks!'
 asciidoc_quirks = -a stylesheet="${style}"
