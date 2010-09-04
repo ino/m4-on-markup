@@ -1,7 +1,7 @@
 # /home/www/gmxhome/Makefile-html _date: 20100902-2051_
 # vim: set filetype=make ts=4:
 # -*- mode: make; -*-
-# $HG_Id: Makefile-html r:75 2010-08-25 b-abstract-tool ino-news $
+# $HG_Id: Makefile-html r:82 2010-09-03 b-abstract-tool ino-news $
 # see <url:man:1 make>
 # info make
 

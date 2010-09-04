@@ -1,51 +1,38 @@
-dnl /home/www/gmxhome/preproc.m4 _date: 20100902-2130_
+dnl /home/www/gmxhome/preproc.m4 _date: 20100904-2026_
 dnl vim: set filetype=m4 ts=4:
 dnl -*- mode: m4; -*-
-dnl $HG_Id: preproc.m4 r:79 2010-08-27 b-abstract-tool ino-news $
+dnl $HG_Id: preproc.m4 r:85 2010-09-04 b-abstract-tool ino-news $
 divert(-1)dnl
 changequote(`{', `}')
 changecom({###},)
-undefine({changequote})
-undefine({changecom})
 ###
 ### rename some builtins so they don't collide with any text
 ###
-### or maybe pushdef()?
-define({__rename}, {define({$2}, defn({$1}))undefine({$1})})
-###
 define({__defn}, defn({defn}))
-undefine({defn})
 define({__def}, __defn({define}))
-undefine({define})
-### undefine undefine to disable accidental undefine
 __def({__undefine}, __defn({undefine}))
-undefine({undefine})
-__def({__ign}, __defn({dnl}))
-__undefine({dnl})
-__def({__switch}, __defn({ifelse}))
-__undefine({ifelse})
-__def({__eval}, __defn({eval}))
-__undefine({eval})
-__def({__len}, __defn({len}))
-__undefine({len})
-__def({__pushdef}, __defn({pushdef}))
-__undefine({pushdef})
-__def({__popdef}, __defn({popdef}))
-__undefine({popdef})
-__def({__incr}, __defn({incr}))
-__undefine({incr})
-__def({__errprint}, __defn({errprint}))
-__undefine({errprint})
-__def({__exit}, __defn({m4exit}))
-__undefine({m4exit})
-__def({__shift}, __defn({shift}))
-__undefine({shift})
-__def({__include}, __defn({include}))
-__undefine({include})
-__def({__ifdef}, __defn({ifdef}))
-__undefine({ifdef})
-__def({__sed}, __defn({patsubst}))
-__undefine({patsubst})
+undefine({define}, {defn}, {undefine})
+###
+### or maybe pushdef()?
+__def({__rename}, {__def({$2}, __defn({$1})){}__undefine({$1})})
+###
+__rename({changequote}, {__changequote})
+__rename({changecom}, {__changecom})
+__rename({dnl}, {__ign})
+__rename({ifelse}, {__switch})
+__rename({eval}, {__eval})
+__rename({len}, {__len})
+__rename({pushdef}, {__pushdef})
+__rename({popdef}, {__popdef})
+__rename({incr}, {__incr})
+__rename({errprint}, {__errprint})
+__rename({m4exit}, {__exit})
+__rename({shift}, {__shift})
+__rename({include}, {__include})
+__rename({ifdef}, {__ifdef})
+### __def({__sed}, __defn({patsubst})){}__undefine({patsubst})
+__rename({patsubst}, {__sed})
+###
 ### __warning({text})
 __def({__warning},
 {__errprint(__program__:__file__:__line__{: warning: "$*"
@@ -59,11 +46,8 @@ __def({__first}, {$1})
 __def({__rest}, {__shift($@)})
 ### wrap divert() and undivert() so that all current diversions are
 ### known.
-__def({__undivert}, __defn({undivert}))
-__undefine({undivert})
-### __def({___divert}, __defn({divert}))
-__def({__divert}, __defn({divert}))
-__undefine({divert})
+__rename({undivert}, {__undivert})
+__rename({divert}, {__divert})
 ### ########################################
 ### from m4-1.4.14/examples/stack.m4
 ### __stack_foreach(macro, action)
@@ -98,11 +82,8 @@ __def({___joinall},
 ### ########################################
 ### __sys({command}) should run in a diversion (9, reserved!)
 ### doesn't work right w/ esyscmd(), because it expands cmd-output!
-### __def({___sys}, __defn({esyscmd}))
-### __def({__sys}, __defn({esyscmd}))
-__def({__sysval}, __defn({sysval}))
-__def({___sys}, __defn({syscmd}))
-__undefine({syscmd}, {sysval})
+__rename({sysval}, {__sysval})
+__rename({syscmd}, {___sys})
 ### __undivert_all{}__ign
 __def({__sys}, {__ign
 __undivert({0})__ign
@@ -155,6 +136,27 @@ __def({_tool_choice_}, {'build' tool must be one of 'asciidoc', 'docutils', 'txt
 ### "asciidoc" stuff
 ###
 __switch(_builder_, {asciidoc}, {__ign
+###
+### _escape1_({any text})
+### escape first occurence of wiki markup
+### _escape_all_({any text})
+### escape all occurences of wiki markup
+### _escape_({any text})
+### escape internal quotation characters, [{}] in our case
+###
+### __def({_asciidoc_esc_hunter1_}, {^\([^`'_+*-]*\)\([/]+\)\([`'_+*-]\)\(.*\)$})
+### __def({_asciidoc_esc_sed1_}, {\1\2\\\3\4})
+__def({_asciidoc_esc_hunter1_}, {^\([^`'_+*-]*\)\([`'_+*-]\)\(.*\)$})
+__def({_asciidoc_esc_sed1_}, {\1\\\2\3})
+### __def({_escape1_}, {__sed({$1}, {_asciidoc_esc_hunter1_}, {_asciidoc_esc_sed1_})})
+### __def({_escape1_}, {__sed({$1}, {^\([^`'_+*-]*\)\([`'_+*-]\)\(.*\)$}, {\1\\\2\3})})
+__def({_escape1_}, {__sed({$1}, _asciidoc_esc_hunter1_, _asciidoc_esc_sed1_)})
+__def({_asciidoc_esc_hunter_all_}, {\([`'_+*-]\)})
+__def({_asciidoc_esc_sed_all_}, {\\\&})
+__def({_escape_all_}, {__sed({$1}, _asciidoc_esc_hunter_all_, _asciidoc_esc_sed_all_)})
+###
+__def({_escape_},
+{__changequote({[[}, {]]})$1[[]]__changequote([[{]], [[}]])})
 ###
 ### _standout_({some text})
 ###
@@ -210,28 +212,28 @@ __ruler__sidebar__
 __popdef({__ruler__text__}, {__ruler__sidebar__})__ign
 })
 ###
-### _note_({text})
+### _note_({text-block})
 ###
 __def({_note_},
 {{[NOTE]}
 $1
 })
 ###
-### _warning_({text})
+### _warning_({text-block})
 ###
 __def({_warning_},
 {{[WARNING]}
 $1
 })
 ###
-### _tip_({text})
+### _tip_({text-block})
 ###
 __def({_tip_},
 {{[TIP]}
 $1
 })
 ###
-### _code_({text})
+### _code_({text-block})
 ###
 __def({_code_},
 {
@@ -273,6 +275,8 @@ __def({_bold_}, {{*}$1{*}})
 __def({_mono_}, {{+}$1{+}})
 ###
 ### _dquote_({text})
+### double quote {text}
+### seems not to work as advertized (DNWAA)
 ###
 __def({_dquote_}, {{``}$1{''}})
 ###
@@ -288,6 +292,12 @@ __def({_super_s_}, {{^}$1{^}})
 ###
 __def({_sub_s_}, {{~}$1{~}})
 ###
+### _tech_lit_({text})
+###
+### __def({_tech_lit_}, {_dquote_({_mono_({$1})})})
+### __def({_tech_lit_}, {_mono_({_dquote_({$1})})})
+__def({_tech_lit_}, {_mono_({$1})})
+###
 ### _header_2_({text})
 ###
 __def({_header_2_},
@@ -298,6 +308,12 @@ __def({_header_2_},
 ###
 __def({_header_3_},
 {{=== }$1
+})
+###
+### _header_4_({text})
+###
+__def({_header_4_},
+{{==== }$1
 })
 ###
 ### _link_({link_target}, {caption})
